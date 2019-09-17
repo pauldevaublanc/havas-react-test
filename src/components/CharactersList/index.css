@@ -1,0 +1,40 @@
+.list-container {
+    width: 100%;
+}
+
+.character-list-wrapper {
+    width: 85%;
+    overflow: scroll;
+    margin: 30px auto;
+}
+
+.loader-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* PAGINATION */
+.pagination-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    list-style: none;
+}
+
+.pagination-wrapper li {
+    padding: 0px 12px;
+    cursor: pointer;
+    border-radius: 50%;
+}
+
+.pagination-wrapper li.active {
+    border: 1px solid var(--yellow);
+    color: var(--white);
+}
+
+.pagination-wrapper li:hover {
+    color: var(--white);
+    transition: 0.3s;
+}
+/* //PAGINATION// */
