@@ -2,19 +2,21 @@ import React, { Component } from 'react';
 import './index.css';
 import config from '../../config/index';
 
-// PROJECT COMPONENT
+// PROJECT COMPONENTS
 import Loader from '../Loader';
+import CharacterItem from '../CharacterItem';
 
 
 // BOOTSTRAP COMPONENTS
-import ListGroup from 'react-bootstrap/ListGroup';
-import Container from 'react-bootstrap/Container';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
-import InputGroup from 'react-bootstrap/InputGroup';
-import Button from 'react-bootstrap/Button';
-import FormControl from 'react-bootstrap/FormControl';
-
+import { 
+    ListGroup, 
+    Container, 
+    Row, 
+    Col, 
+    InputGroup, 
+    Button, 
+    FormControl 
+} from 'react-bootstrap';
 
 
 class CharactersList extends Component {
@@ -23,7 +25,7 @@ class CharactersList extends Component {
         characters : {},
         totalPage: null,
         currentPage: 1,
-        inputValue: ''
+        inputValue: '',
     }
 
     getCharacters = (pageNumber) => {
@@ -43,20 +45,34 @@ class CharactersList extends Component {
         });
     }
     
-    searchCharacters = (event) => {
+    searchCharacters = () => {
         fetch(`${config.urlApi}?search=${this.state.inputValue}`)
         .then(response => response.json())
         .then(characters => 
             this.setState({ 
                 characters,
-            }));
-        event.preventDefault();
+            })
+        );
     }
 
     resetSearch = () => {
         this.setState({
             inputValue: ''
         }, ()=> this.getCharacters(this.state.currentPage));
+    }
+
+    getPages = () => {
+        let pagesNumbers = [];
+        for (let i = 1; i <= this.state.totalPage; i++) {
+            pagesNumbers.push(
+                <li 
+                key={i} 
+                className={`${this.state.currentPage === i ? 'active' : ''}`} 
+                onClick={()=>this.getPage(i)}>{i}
+                </li>
+            );
+        }
+        return pagesNumbers;
     }
 
 
@@ -73,24 +89,15 @@ class CharactersList extends Component {
     
 
     render() {
-        let pagesNumbers = [];
-        for (let i = 1; i <= this.state.totalPage; i++) {
-            pagesNumbers.push(
-                <li 
-                key={i} 
-                className={`${this.state.currentPage === i ? 'active' : ''}`} 
-                onClick={()=>this.getPage(i)}>{i}
-                </li>
-            );
-        }
-
+    
+        const {characters, value} = this.state
+    
         return(
-            
             <div className="list-container">
                 
-                <div className={`character-list-wrapper ${this.state.characters.results === undefined ? 'loader-wrapper' : ''}`}>
+                <div className={`character-list-wrapper ${ !characters.results ? 'loader-wrapper' : ''}`}>
                     {
-                        this.state.characters.results === undefined ? 
+                        !characters.results ? 
                         <Loader/> : 
 
                         <div>
@@ -98,12 +105,26 @@ class CharactersList extends Component {
                                 <FormControl
                                 placeholder="Rechercher un personnage"
                                 aria-label="Rechercher un personnage"
-                                value={this.state.value}
+                                value={value}
                                 onChange={this.handleChange}
                                 />
                                 <InputGroup.Append>
-                                <Button variant="outline-secondary" style={{color:'var(--white)'}} onClick={this.searchCharacters}>Rechercher</Button>
-                                <Button variant="outline-secondary" style={{color:'var(--yellow)'}} onClick={this.resetSearch}>Reset</Button>
+                                <Button 
+                                    variant="outline-secondary" 
+                                    style={{
+                                        color:'var(--white)'
+                                    }} 
+                                    onClick={this.searchCharacters}>
+                                        Rechercher
+                                </Button>
+                                <Button 
+                                    variant="outline-secondary" 
+                                    style={{
+                                        color:'var(--yellow)'
+                                    }} 
+                                    onClick={this.resetSearch}>
+                                        Reset
+                                </Button>
                                 </InputGroup.Append>
                             </InputGroup>
 
@@ -125,17 +146,14 @@ class CharactersList extends Component {
                                         
                                     </Container>
                                 </ListGroup.Item>
-                            { this.state.characters.results.map((character, key)=> {
+                            { characters.results.map((character, key)=> {
                                 return (
-                                    <ListGroup.Item action as="li" key={key} style={{padding: ".70rem 0.20rem"}}>
-                                        <Container>
-                                            <Row>
-                                                <Col md={4} xs={6}>{character.name}</Col>
-                                                <Col md={4} xs={3} >{character.height === "unknown" ? '?' : character.height + 'cm'}</Col>
-                                                <Col md={4} xs={3}>{character.mass === "unknown" ? '?' : character.height + 'kg'}</Col>
-                                            </Row>
-                                        </Container>
-                                    </ListGroup.Item>
+                                    <CharacterItem 
+                                        key={key}
+                                        name={character.name} 
+                                        mass={character.mass} 
+                                        height={character.height}
+                                    />
                                 )
                             })}
                             </ListGroup>
@@ -143,7 +161,7 @@ class CharactersList extends Component {
                     }{} 
                 </div>
                 <ul className="pagination-wrapper">
-                    {pagesNumbers}
+                    {this.getPages()}
                 </ul>
             </div>
         )
