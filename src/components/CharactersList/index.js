@@ -26,15 +26,18 @@ class CharactersList extends Component {
         totalPage: null,
         currentPage: 1,
         inputValue: '',
+        loading: false
     }
 
     getCharacters = (pageNumber) => {
+        this.setState({loading: true})
         fetch(`${config.urlApi}?page=${pageNumber}`)
         .then(response => response.json())
         .then(characters => 
             this.setState({ 
                 characters,
                 totalPage: Math.round(characters.count/10),
+                loading: false,
             })
         );
     }
@@ -46,11 +49,13 @@ class CharactersList extends Component {
     }
     
     searchCharacters = () => {
+        this.setState({loading: true})
         fetch(`${config.urlApi}?search=${this.state.inputValue}`)
         .then(response => response.json())
         .then(characters => 
             this.setState({ 
                 characters,
+                loading: false,
             })
         );
     }
@@ -61,7 +66,7 @@ class CharactersList extends Component {
         }, ()=> this.getCharacters(this.state.currentPage));
     }
 
-    getPages = () => {
+    getPaginator = () => {
         let pagesNumbers = [];
         for (let i = 1; i <= this.state.totalPage; i++) {
             pagesNumbers.push(
@@ -90,11 +95,10 @@ class CharactersList extends Component {
 
     render() {
     
-        const {characters, value} = this.state
+        const {characters, value, loading} = this.state
     
         return(
-            <div className="list-container">
-                
+            <div className="list-container">                
                 <div className={`character-list-wrapper ${ !characters.results ? 'loader-wrapper' : ''}`}>
                     {
                         !characters.results ? 
@@ -127,6 +131,7 @@ class CharactersList extends Component {
                                 </Button>
                                 </InputGroup.Append>
                             </InputGroup>
+                            { loading && <div className="mini-loader">CHARGEMENT...</div>}
 
                             <ListGroup as="ul">
                                 <ListGroup.Item 
@@ -161,7 +166,7 @@ class CharactersList extends Component {
                     }{} 
                 </div>
                 <ul className="pagination-wrapper">
-                    {this.getPages()}
+                    {this.getPaginator()}
                 </ul>
             </div>
         )
